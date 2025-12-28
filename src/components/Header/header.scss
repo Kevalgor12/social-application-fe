@@ -1,0 +1,276 @@
+@use "../../styles/break-points.scss" as *;
+
+.header {
+  background: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+
+  .header-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 70px;
+
+    @include bp(md-max) {
+      padding: 0 16px;
+    }
+  }
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--lady-blue);
+  text-decoration: none;
+
+  svg {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+.nav {
+  display: flex;
+  gap: 32px;
+
+  @include bp(md-max) {
+    display: none;
+  }
+
+  .nav-link {
+    text-decoration: none;
+    color: var(--darlington);
+    font-weight: 500;
+    transition: color 0.2s ease;
+    padding: 8px 0;
+    position: relative;
+
+    &:hover {
+      color: var(--lady-blue);
+    }
+
+    &.active {
+      color: var(--lady-blue);
+
+      &::after {
+        content: "";
+        position: absolute;
+        bottom: -4px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: var(--lady-blue);
+        border-radius: 1px;
+      }
+    }
+  }
+}
+
+.auth-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.auth-buttons {
+  display: flex;
+  gap: 12px;
+
+  @include bp(xs-max) {
+    gap: 8px;
+  }
+}
+
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  @include bp(xs-max) {
+    padding: 8px 16px;
+    font-size: 13px;
+  }
+
+  &.btn-outline {
+    background: transparent;
+    border: 2px solid var(--sparkling-silver);
+    color: var(--darlington);
+
+    &:hover {
+      border-color: var(--lady-blue);
+      color: var(--lady-blue);
+    }
+  }
+
+  &.btn-primary {
+    background: linear-gradient(135deg, var(--lady-blue), var(--happy-blue));
+    color: white;
+
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+    }
+  }
+}
+
+.profile-dropdown {
+  position: relative;
+}
+
+.profile-trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: transparent;
+  border: 2px solid var(--sparkling-silver);
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+
+  &:hover {
+    border-color: var(--lady-blue);
+  }
+
+  @include bp(xs-max) {
+    padding: 6px 10px;
+    font-size: 13px;
+  }
+}
+
+.profile-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profile-name {
+  font-weight: 500;
+  color: var(--cosmos);
+
+  @include bp(sm-max) {
+    display: none;
+  }
+}
+
+.dropdown-arrow {
+  transition: transform 0.2s ease;
+  color: var(--darlington);
+
+  &.open {
+    transform: rotate(180deg);
+  }
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: white;
+  border: 2px solid var(--sparkling-silver);
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  min-width: 240px;
+  z-index: 1000;
+  animation: dropdownFade 0.2s ease;
+  overflow: hidden;
+}
+
+@keyframes dropdownFade {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: var(--bright-chrome);
+}
+
+.dropdown-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.dropdown-user-info {
+  display: flex;
+  flex-direction: column;
+
+  .dropdown-name {
+    font-weight: 600;
+    color: var(--cosmos);
+    font-size: 14px;
+  }
+
+  .dropdown-email {
+    font-size: 12px;
+    color: var(--darlington);
+  }
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  text-decoration: none;
+  color: var(--cosmos);
+  font-size: 14px;
+  transition: background-color 0.2s ease;
+  border: none;
+  background: none;
+  width: 100%;
+  cursor: pointer;
+
+  &:hover {
+    background-color: var(--bright-chrome);
+  }
+
+  svg {
+    width: 16px;
+    height: 16px;
+    color: var(--darlington);
+  }
+
+  &.logout {
+    color: var(--blaze-red);
+
+    &:hover {
+      background-color: #fef2f2;
+    }
+  }
+}
+
+.dropdown-divider {
+  height: 2px;
+  background-color: var(--sparkling-silver);
+  margin: 4px 0;
+}

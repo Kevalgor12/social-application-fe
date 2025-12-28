@@ -1,0 +1,218 @@
+@use "../../styles/break-points.scss" as *;
+
+.user-profile-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 40px 20px;
+
+  @include bp(md-max) {
+    padding: 32px 16px;
+  }
+
+  @include bp(xs-max) {
+    padding: 24px 16px;
+  }
+}
+
+.user-profile-card {
+  background: var(--white);
+  border-radius: 16px;
+  padding: 40px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+
+  @include bp(xs-max) {
+    padding: 24px 16px;
+  }
+}
+
+.profile-header {
+  text-align: center;
+  margin-bottom: 40px;
+
+  @include bp(xs-max) {
+    margin-bottom: 32px;
+  }
+}
+
+.profile-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--cosmos);
+  margin-bottom: 8px;
+
+  @include bp(xs-max) {
+    font-size: 28px;
+  }
+}
+
+.profile-subtitle {
+  font-size: 16px;
+  color: var(--darlington);
+}
+
+.profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+
+  @include bp(sm-max) {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--cosmos);
+
+  .required {
+    color: var(--blaze-red);
+    margin-left: 4px;
+  }
+}
+
+.form-input,
+.form-select,
+.form-textarea {
+  padding: 12px 16px;
+  border: 2px solid var(--sparkling-silver);
+  border-radius: 8px;
+  font-size: 14px;
+  color: var(--cosmos);
+  background: var(--white);
+  transition: all 0.2s ease;
+
+  &:focus {
+    outline: none;
+    border-color: var(--lady-blue);
+    box-shadow: 0 0 0 3px rgba(var(--lady-blue), 0.1);
+  }
+
+  &:hover {
+    border-color: var(--happy-blue);
+  }
+
+  &::placeholder {
+    color: var(--darlington);
+  }
+
+  &:disabled {
+    background: var(--bright-chrome);
+    cursor: not-allowed;
+  }
+
+  &.error {
+    border-color: var(--blaze-red);
+
+    &:focus {
+      border-color: var(--blaze-red);
+      box-shadow: 0 0 0 3px rgba(var(--blaze-red), 0.1);
+    }
+  }
+}
+
+.form-select {
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2364748b' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 12px center;
+  background-repeat: no-repeat;
+  background-size: 16px;
+  padding-right: 40px;
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 100px;
+  font-family: inherit;
+}
+
+.error-message {
+  font-size: 12px;
+  color: var(--blaze-red);
+  margin-top: 4px;
+}
+
+.character-count {
+  font-size: 12px;
+  color: var(--darlington);
+  text-align: right;
+  margin-top: 4px;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid var(--sparkling-silver);
+}
+
+.btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  &.btn-secondary {
+    background: transparent;
+    border: 2px solid var(--sparkling-silver);
+    color: var(--darlington);
+
+    &:hover:not(:disabled) {
+      border-color: var(--happy-blue);
+      color: var(--happy-blue);
+    }
+  }
+
+  &.btn-primary {
+    background: linear-gradient(135deg, var(--lady-blue), var(--happy-blue));
+    color: var(--white);
+
+    &:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+  }
+}
+
+// Loading state for form submission
+.form-submitting {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+// Success state (you can add this class when form is successfully submitted)
+.form-success {
+  border-color: var(--dark-green-turquoise);
+
+  .form-input,
+  .form-select,
+  .form-textarea {
+    border-color: var(--dark-green-turquoise);
+  }
+}

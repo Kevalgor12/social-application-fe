@@ -1,0 +1,47 @@
+@use "break-points" as *;
+
+:root {
+  --sparkling-silver: #e2e8f0;
+  --blaze-red: #ef4444;
+  --white: #ffffff;
+  --bright-chrome: #f8fafc;
+  --black: #000000;
+  --dark-green-turquoise: #10b981;
+  --cosmos: #1e293b;
+  --happy-blue: #5855eb;
+  --lady-blue: #6366f1;
+  --darlington: #64748b;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, sans-serif;
+  background-color: var(--bright-chrome);
+  color: var(--cosmos);
+  line-height: 1.5;
+}
+
+#root {
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content {
+  flex: 1;
+  background-color: var(--bright-chrome);
+  min-height: calc(100vh - 140px);
+}
