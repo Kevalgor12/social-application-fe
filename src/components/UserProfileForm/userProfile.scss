@@ -200,13 +200,11 @@
   }
 }
 
-// Loading state for form submission
 .form-submitting {
   opacity: 0.7;
   pointer-events: none;
 }
 
-// Success state (you can add this class when form is successfully submitted)
 .form-success {
   border-color: var(--dark-green-turquoise);
 

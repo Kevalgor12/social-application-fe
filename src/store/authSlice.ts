@@ -1,38 +1,12 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
-export interface User {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  isVerified: boolean;
-  isActive: boolean;
-}
-
-export interface AuthData {
-  user: User;
-  accessToken: string;
-  tokenType: "Bearer";
-}
-
-export interface AuthResponse {
-  success: boolean;
-  message: string;
-  data: AuthData;
-}
-
-export interface RegisterResponse {
-  success: boolean;
-  message: string;
-  data: User;
-}
+import type { User } from "../interfaces/auth";
 
 interface AuthState {
   isLoggedIn: boolean;
   user: User | null;
 }
 
-// Initialize state from localStorage
 const getInitialState = (): AuthState => {
   const loggedInUser = localStorage.getItem("user");
   if (loggedInUser) {

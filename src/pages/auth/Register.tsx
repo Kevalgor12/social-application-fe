@@ -1,12 +1,16 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { type RegisterResponse } from "../../store/authSlice";
-import { useAppDispatch } from "../../store/hooks";
 import { useMutation } from "@tanstack/react-query";
 import { useFormik } from "formik";
 
-import "./auth.scss";
+import type { RegisterResponse } from "../../interfaces/auth";
+
+import { registerSchema } from "../../validations/auth.validations";
+
 import { register as registerAPI } from "../../api/auth";
+
+import "./auth.scss";
+import { toast } from "react-toastify";
 
 const ShowIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640">
@@ -14,7 +18,6 @@ const ShowIcon = () => (
   </svg>
 );
 
-// Professional Hide Password Icon
 const HideIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640">
     <path d="M73 39.1C63.6 29.7 48.4 29.7 39.1 39.1C29.8 48.5 29.7 63.7 39 73.1L567 601.1C576.4 610.5 591.6 610.5 600.9 601.1C610.2 591.7 610.3 576.5 600.9 567.2L504.5 470.8C507.2 468.4 509.9 466 512.5 463.6C559.3 420.1 590.6 368.2 605.5 332.5C608.8 324.6 608.8 315.8 605.5 307.9C590.6 272.2 559.3 220.2 512.5 176.8C465.4 133.1 400.7 96.2 319.9 96.2C263.1 96.2 214.3 114.4 173.9 140.4L73 39.1zM236.5 202.7C260 185.9 288.9 176 320 176C399.5 176 464 240.5 464 320C464 351.1 454.1 379.9 437.3 403.5L402.6 368.8C415.3 347.4 419.6 321.1 412.7 295.1C399 243.9 346.3 213.5 295.1 227.2C286.5 229.5 278.4 232.9 271.1 237.2L236.4 202.5zM357.3 459.1C345.4 462.3 332.9 464 320 464C240.5 464 176 399.5 176 320C176 307.1 177.7 294.6 180.9 282.7L101.4 203.2C68.8 240 46.4 279 34.5 307.7C31.2 315.6 31.2 324.4 34.5 332.3C49.4 368 80.7 420 127.5 463.4C174.6 507.1 239.3 544 320.1 544C357.4 544 391.3 536.1 421.6 523.4L357.4 459.2z" />
@@ -22,7 +25,6 @@ const HideIcon = () => (
 );
 
 const Register = () => {
-  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -32,6 +34,7 @@ const Register = () => {
     isPending: isLoading,
     isSuccess,
     mutateAsync,
+    error,
   } = useMutation<
     RegisterResponse,
     Error,
@@ -55,6 +58,9 @@ const Register = () => {
       password: "",
       confirmPassword: "",
     },
+    validationSchema: registerSchema,
+    validateOnChange: true,
+    validateOnBlur: true,
     onSubmit: async (values) => {
       await mutateAsync({
         firstName: values.firstName,
@@ -77,8 +83,11 @@ const Register = () => {
   useEffect(() => {
     if (!isLoading && isSuccess && responseData?.data.id) {
       navigate("/login");
+      toast.success(responseData.message);
+    } else if (!isLoading && !isSuccess && error) {
+      toast.error(error.message);
     }
-  }, [isSuccess, isLoading, responseData, navigate, dispatch]);
+  }, [isSuccess, isLoading, responseData, navigate, error]);
 
   return (
     <div className="login-container">
@@ -92,27 +101,33 @@ const Register = () => {
           <div className="form-group">
             <input
               type="text"
-              id="first-name"
+              id="firstName"
               name="firstName"
               value={formik.values.firstName}
               onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
               placeholder="Enter your first name"
-              required
               className="form-input"
             />
+            {formik.errors.firstName && formik.touched.firstName && (
+              <span className="error-message">{formik.errors.firstName}</span>
+            )}
           </div>
 
           <div className="form-group">
             <input
               type="text"
-              id="last-name"
+              id="lastName"
               name="lastName"
               value={formik.values.lastName}
               onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
               placeholder="Enter your last name"
-              required
               className="form-input"
             />
+            {formik.errors.lastName && formik.touched.lastName && (
+              <span className="error-message">{formik.errors.lastName}</span>
+            )}
           </div>
 
           <div className="form-group">
@@ -122,21 +137,24 @@ const Register = () => {
               name="email"
               value={formik.values.email}
               onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
               placeholder="Enter your email"
-              required
               className="form-input"
             />
+            {formik.errors.email && formik.touched.email && (
+              <span className="error-message">{formik.errors.email}</span>
+            )}
           </div>
 
-          <div className="form-group" style={{ position: "relative" }}>
+          <div className="form-group position-relative">
             <input
               type={showPassword ? "text" : "password"}
               id="password"
               name="password"
               value={formik.values.password}
               onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
               placeholder="Enter your password"
-              required
               className="form-input"
             />
             <button
@@ -153,17 +171,20 @@ const Register = () => {
             >
               {showPassword ? <HideIcon /> : <ShowIcon />}
             </button>
+            {formik.errors.password && formik.touched.password && (
+              <span className="error-message">{formik.errors.password}</span>
+            )}
           </div>
 
-          <div className="form-group" style={{ position: "relative" }}>
+          <div className="form-group position-relative">
             <input
               type={showConfirmPassword ? "text" : "password"}
               id="confirmPassword"
               name="confirmPassword"
               value={formik.values.confirmPassword}
               onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
               placeholder="Re-enter your password"
-              required
               className="form-input"
             />
             <button
@@ -182,6 +203,12 @@ const Register = () => {
             >
               {showConfirmPassword ? <HideIcon /> : <ShowIcon />}
             </button>
+            {formik.errors.confirmPassword &&
+              formik.touched.confirmPassword && (
+                <span className="error-message">
+                  {formik.errors.confirmPassword}
+                </span>
+              )}
           </div>
 
           <button

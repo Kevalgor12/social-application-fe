@@ -1,13 +1,14 @@
+import { useNavigate } from "react-router-dom";
+
+import type { PostMeta } from "../../interfaces/post";
+
+import { useAppSelector } from "../../store/hooks";
+
+import Pagination from "../Pagination";
 import PostCard from "../PostCard";
+import SearchBox from "../SearchBox";
 
 import "./postFeed.scss";
-import type { PostMeta } from "../../api/posts";
-import SearchBox from "../SearchBox";
-import Pagination from "../Pagination";
-import { useAppSelector } from "../../store/hooks";
-import { useNavigate } from "react-router-dom";
-// import { useEffect, useState } from "react";
-
 interface PostsFeedProps {
   posts?: PostMeta[];
   onSearchChange?: (term: string) => void;
@@ -35,8 +36,7 @@ const PostsFeed = ({
   onPageChange,
   onNextPage,
   onPreviousPage,
-}: // onReactionUpdate,
-PostsFeedProps) => {
+}: PostsFeedProps) => {
   const { isLoggedIn, user } = useAppSelector((state) => state.auth);
   const navigate = useNavigate();
 

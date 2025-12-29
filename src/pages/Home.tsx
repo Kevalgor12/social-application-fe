@@ -1,8 +1,11 @@
 import { Link } from "react-router-dom";
-import "./home.scss";
+
 import { useAppSelector } from "../store/hooks";
+
 import Footer from "../components/Footer";
 import Header from "../components/Header";
+
+import "./home.scss";
 
 const Home = () => {
   const { isLoggedIn } = useAppSelector((state) => state.auth);

@@ -1,18 +1,20 @@
 import React, { useEffect, useState } from "react";
-import { useFormik } from "formik";
-import * as Yup from "yup";
 import { useNavigate, useParams } from "react-router-dom";
+import { useMutation } from "@tanstack/react-query";
+import { useFormik } from "formik";
+import { toast } from "react-toastify";
 
-import "./postForm.scss";
+import type { PostMeta, PostResponse } from "../../interfaces/post";
+
+import { postSchema } from "../../validations/post.validation";
+
 import {
   createPost as createPostAPI,
   updatePost as updatePostAPI,
-  type PostMeta,
-  type PostResponse,
 } from "../../api/posts";
-import { useMutation } from "@tanstack/react-query";
 
-// Types
+import "./postForm.scss";
+
 interface PostFormValues {
   title: string;
   image: string;
@@ -24,36 +26,13 @@ interface PostFormPageProps {
   postDetail?: PostMeta;
 }
 
-// Yup validation schema
-const validationSchema = Yup.object<PostFormValues>({
-  title: Yup.string()
-    .min(5, "Title must be at least 5 characters")
-    .max(100, "Title cannot exceed 100 characters")
-    .required("Title is required"),
-
-  image: Yup.string()
-    .url("Please enter a valid image URL")
-    .required("Image URL is required")
-    .test("image-url", "Please enter a valid image URL", (value) => {
-      if (!value) return true;
-      return (
-        value.match(/\.(jpeg|jpg|gif|png|webp)$/i) !== null ||
-        value.includes("picsum.photos")
-      );
-    }),
-
-  description: Yup.string()
-    .min(20, "Description must be at least 20 characters")
-    .max(1000, "Description cannot exceed 1000 characters")
-    .required("Description is required"),
-});
-
 const PostForm: React.FC<PostFormPageProps> = ({ isEdit, postDetail }) => {
   const {
     data: createPostData,
     isPending: isCreatePostLoading,
     isSuccess: isCreatePostSuccess,
     mutateAsync: createPostMutateAsync,
+    error: createPostError,
   } = useMutation<
     PostResponse,
     Error,
@@ -71,6 +50,7 @@ const PostForm: React.FC<PostFormPageProps> = ({ isEdit, postDetail }) => {
     isPending: isUpdatePostLoading,
     isSuccess: isUpdatePostSuccess,
     mutateAsync: updatePostMutateAsync,
+    error: updatePostError,
   } = useMutation<
     PostResponse,
     Error,
@@ -90,14 +70,13 @@ const PostForm: React.FC<PostFormPageProps> = ({ isEdit, postDetail }) => {
   const isEditing = Boolean(id);
   const [imageError, setImageError] = useState<boolean>(false);
 
-  // Formik setup
   const formik = useFormik<PostFormValues>({
     initialValues: {
       title: postDetail?.title || "",
       image: postDetail?.image || "",
       description: postDetail?.description || "",
     },
-    validationSchema: validationSchema,
+    validationSchema: postSchema,
     validateOnChange: true,
     validateOnBlur: true,
     onSubmit: async (values, { setSubmitting }) => {
@@ -116,35 +95,30 @@ const PostForm: React.FC<PostFormPageProps> = ({ isEdit, postDetail }) => {
             }));
         navigate("/me/posts");
       } catch (error) {
-        console.error("Failed to save post:", error);
+        toast.error(error instanceof Error ? error.message : String(error));
       } finally {
         setSubmitting(false);
       }
     },
   });
 
-  // Handle image load error
   const handleImageError = (): void => {
     setImageError(true);
   };
 
-  // Handle image load success
   const handleImageLoad = (): void => {
     setImageError(false);
   };
 
-  // Handle cancel button
   const handleCancel = (): void => {
     navigate("/me/posts");
   };
 
-  // Handle form reset
   const handleReset = (): void => {
     formik.resetForm();
     setImageError(false);
   };
 
-  // Validate image URL and show preview
   const isValidImageUrl = (url: string): boolean => {
     if (!url) return false;
     try {
@@ -157,21 +131,50 @@ const PostForm: React.FC<PostFormPageProps> = ({ isEdit, postDetail }) => {
 
   useEffect(() => {
     if (
-      (!isCreatePostLoading &&
-        isCreatePostSuccess &&
-        createPostData?.data.id) ||
-      (!isUpdatePostLoading && isUpdatePostSuccess && updatePostData?.data.id)
+      !isCreatePostLoading &&
+      isCreatePostSuccess &&
+      createPostData?.data.id
     ) {
+      toast.success(createPostData.message);
       navigate("/me/posts");
+    } else if (
+      !isCreatePostLoading &&
+      !isCreatePostSuccess &&
+      createPostError
+    ) {
+      toast.error(createPostError?.message);
     }
   }, [
+    createPostData?.data.id,
+    createPostData?.message,
+    createPostError,
     isCreatePostLoading,
     isCreatePostSuccess,
-    createPostData,
     navigate,
+  ]);
+
+  useEffect(() => {
+    if (
+      !isUpdatePostLoading &&
+      isUpdatePostSuccess &&
+      updatePostData?.data.id
+    ) {
+      toast.success(updatePostData.message);
+      navigate("/me/posts");
+    } else if (
+      !isUpdatePostLoading &&
+      !isUpdatePostSuccess &&
+      updatePostError
+    ) {
+      toast.error(updatePostError?.message);
+    }
+  }, [
     isUpdatePostLoading,
     isUpdatePostSuccess,
+    navigate,
     updatePostData?.data.id,
+    updatePostData?.message,
+    updatePostError,
   ]);
 
   return (
@@ -233,7 +236,6 @@ const PostForm: React.FC<PostFormPageProps> = ({ isEdit, postDetail }) => {
             )}
           </div>
 
-          {/* Image Preview */}
           {formik.values.image && isValidImageUrl(formik.values.image) && (
             <div className="image-preview-section">
               <label className="form-label">Image Preview</label>

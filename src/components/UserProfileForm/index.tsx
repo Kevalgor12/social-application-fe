@@ -1,15 +1,17 @@
 import React, { useEffect } from "react";
+import { useMutation } from "@tanstack/react-query";
 import { useFormik } from "formik";
-import * as Yup from "yup";
+import { toast } from "react-toastify";
+
+import type { ProfileResponse, UserProfile } from "../../interfaces/user";
+
+import { countryCodes } from "../../constants/countryCodes";
+
+import { userProfileSchema } from "../../validations/user.validations";
+
+import { updateUser as updateUserAPI } from "../../api/users";
 
 import "./userProfile.scss";
-import {
-  updateUser as updateUserAPI,
-  type ProfileResponse,
-  type UserProfile,
-} from "../../api/users";
-import { useMutation } from "@tanstack/react-query";
-
 interface UserProfileFormValues {
   firstName: string;
   lastName: string;
@@ -23,84 +25,13 @@ interface UserProfileProps {
   userProfile?: UserProfile | undefined;
 }
 
-// Country codes data
-const countryCodes: { code: string; name: string }[] = [
-  { code: "+1", name: "United States" },
-  { code: "+44", name: "United Kingdom" },
-  { code: "+91", name: "India" },
-  { code: "+86", name: "China" },
-  { code: "+81", name: "Japan" },
-  { code: "+49", name: "Germany" },
-  { code: "+33", name: "France" },
-  { code: "+61", name: "Australia" },
-  { code: "+7", name: "Russia" },
-  { code: "+82", name: "South Korea" },
-  { code: "+34", name: "Spain" },
-  { code: "+39", name: "Italy" },
-  { code: "+55", name: "Brazil" },
-  { code: "+51", name: "Peru" },
-  { code: "+92", name: "Pakistan" },
-  { code: "+880", name: "Bangladesh" },
-  { code: "+62", name: "Indonesia" },
-  { code: "+63", name: "Philippines" },
-  { code: "+66", name: "Thailand" },
-  { code: "+84", name: "Vietnam" },
-];
-
-const validationSchema = Yup.object<UserProfileFormValues>({
-  firstName: Yup.string()
-    .min(2, "First name must be at least 2 characters")
-    .max(50, "First name cannot exceed 50 characters")
-    .matches(
-      /^[a-zA-Z\s'-]+$/,
-      "First name can only contain letters, spaces, hyphens and apostrophes"
-    )
-    .required("First name is required"),
-
-  lastName: Yup.string()
-    .min(2, "Last name must be at least 2 characters")
-    .max(50, "Last name cannot exceed 50 characters")
-    .matches(
-      /^[a-zA-Z\s'-]+$/,
-      "Last name can only contain letters, spaces, hyphens and apostrophes"
-    )
-    .required("Last name is required"),
-
-  email: Yup.string()
-    .email("Please enter a valid email address")
-    .max(100, "Email cannot exceed 100 characters")
-    .required("Email is required"),
-
-  countryCode: Yup.string()
-    .oneOf(
-      countryCodes.map((c) => c.code),
-      "Please select a valid country code"
-    )
-    .required("Country code is required"),
-
-  mobile: Yup.string()
-    .max(20, "Mobile number cannot exceed 20 characters")
-    .matches(
-      /^[\d\s+()]+$/,
-      "Phone number can only contain digits, spaces, and basic symbols"
-    )
-    .nullable()
-    .transform((value) => value || ""),
-
-  address: Yup.string()
-    .max(500, "Address cannot exceed 500 characters")
-    .nullable()
-    .transform((value) => value || ""),
-});
-
 const UserProfileForm: React.FC<UserProfileProps> = ({ userProfile }) => {
   const {
     data: responseData,
     isPending: isLoading,
     isSuccess,
     mutateAsync,
-    // isError,
-    // error,
+    error,
   } = useMutation<
     ProfileResponse,
     Error,
@@ -125,7 +56,7 @@ const UserProfileForm: React.FC<UserProfileProps> = ({ userProfile }) => {
       mobile: userProfile?.mobile || "",
       address: userProfile?.address || "",
     },
-    validationSchema: validationSchema,
+    validationSchema: userProfileSchema,
     validateOnChange: true,
     validateOnBlur: true,
     onSubmit: async (values, { setSubmitting, resetForm }) => {
@@ -139,7 +70,7 @@ const UserProfileForm: React.FC<UserProfileProps> = ({ userProfile }) => {
         });
         resetForm({ values });
       } catch (error) {
-        console.error("Failed to save profile:", error);
+        toast.error(error instanceof Error ? error.message : String(error));
       } finally {
         setSubmitting(false);
       }
@@ -156,9 +87,11 @@ const UserProfileForm: React.FC<UserProfileProps> = ({ userProfile }) => {
 
   useEffect(() => {
     if (!isLoading && isSuccess && responseData.success) {
-      console.log("User profile updated successfully.");
+      toast.success(responseData.message);
+    } else if (!isLoading && !isSuccess && error) {
+      toast.error(error?.message);
     }
-  }, [isSuccess, isLoading, responseData]);
+  }, [isSuccess, isLoading, responseData, error]);
 
   return (
     <div className="user-profile-container">

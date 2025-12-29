@@ -1,17 +1,20 @@
-// import { useQuery, useMutation } from "@tanstack/react-query";
-// import { getPosts, likePost } from "../../api/posts";
+import { useEffect } from "react";
+import { useParams } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { toast } from "react-toastify";
+
+import type { SinglePostResponse } from "../../interfaces/post";
+
+import { useAppSelector } from "../../store/hooks";
+
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import PostDetail from "../../components/PostDetail";
-import { useQuery } from "@tanstack/react-query";
+
 import {
   getPost as getPostAPI,
   getPublicPost as getPublicPostAPI,
-  type SinglePostResponse,
 } from "../../api/posts";
-import { useAppSelector } from "../../store/hooks";
-import { useParams } from "react-router-dom";
-import { useEffect } from "react";
 
 const Post = () => {
   const { id: postId } = useParams<{ id: string }>();
@@ -20,6 +23,7 @@ const Post = () => {
     data: responseData,
     isPending: isLoading,
     isSuccess,
+    error,
   } = useQuery<SinglePostResponse, Error>({
     queryKey: ["getPosts", postId],
     queryFn: () =>
@@ -31,9 +35,9 @@ const Post = () => {
 
   useEffect(() => {
     if (!isLoading && !isSuccess) {
-      console.log("error");
+      toast.error(error?.message);
     }
-  }, [isLoading, isSuccess]);
+  }, [error?.message, isLoading, isSuccess]);
 
   if (isLoading) return <div>Loading...</div>;
 

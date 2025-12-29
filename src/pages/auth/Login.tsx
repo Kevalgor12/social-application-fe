@@ -1,11 +1,19 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { login, type AuthResponse } from "../../store/authSlice";
+import { useMutation } from "@tanstack/react-query";
+import { useFormik } from "formik";
+import { toast } from "react-toastify";
+
+import type { AuthResponse } from "../../interfaces/auth";
+
+import { useAppDispatch } from "../../store/hooks";
+import { login } from "../../store/authSlice";
+
+import { loginSchema } from "../../validations/auth.validations";
+
+import { login as loginAPI } from "../../api/auth";
 
 import "./auth.scss";
-import { useMutation } from "@tanstack/react-query";
-import { login as loginAPI } from "../../api/auth";
-import { useAppDispatch } from "../../store/hooks";
 
 const ShowIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640">
@@ -13,10 +21,9 @@ const ShowIcon = () => (
   </svg>
 );
 
-// Professional Hide Password Icon
 const HideIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640">
-    <path d="M73 39.1C63.6 29.7 48.4 29.7 39.1 39.1C29.8 48.5 29.7 63.7 39 73.1L567 601.1C576.4 610.5 591.6 610.5 600.9 601.1C610.2 591.7 610.3 576.5 600.9 567.2L504.5 470.8C507.2 468.4 509.9 466 512.5 463.6C559.3 420.1 590.6 368.2 605.5 332.5C608.8 324.6 608.8 315.8 605.5 307.9C590.6 272.2 559.3 220.2 512.5 176.8C465.4 133.1 400.7 96.2 319.9 96.2C263.1 96.2 214.3 114.4 173.9 140.4L73 39.1zM236.5 202.7C260 185.9 288.9 176 320 176C399.5 176 464 240.5 464 320C464 351.1 454.1 379.9 437.3 403.5L402.6 368.8C415.3 347.4 419.6 321.1 412.7 295.1C399 243.9 346.3 213.5 295.1 227.2C286.5 229.5 278.4 232.9 271.1 237.2L236.4 202.5zM357.3 459.1C345.4 462.3 332.9 464 320 464C240.5 464 176 399.5 176 320C176 307.1 177.7 294.6 180.9 282.7L101.4 203.2C68.8 240 46.4 279 34.5 307.7C31.2 315.6 31.2 324.4 34.5 332.3C49.4 368 80.7 420 127.5 463.4C174.6 507.1 239.3 544 320.1 544C357.4 544 391.3 536.1 421.6 523.4L357.4 459.2z" />
+    <path d="M73 39.1C63.6 29.7 48.4 29.7 39.1 39.1C29.8 48.5 29.7 63.7 39 73.1L567 601.1C576.4 610.5 591.6 610.5 600.9 601.1C610.2 591.7 610.3 576.5 600.9 567.2L504.5 470.8C507.2 468.4 509.9 466 512.5 463.6C559.3 420.1 590.6 368.2 605.5 332.5C608.8 324.6 608.8 315.8 605.5 307.9C590.6 272.2 559.3 220.2 512.5 176.8C465.4 133.1 400.7 96.2 319.9 96.2C263.1 96.2 214.3 114.4 173.9 140.4L73 39.1z" />
   </svg>
 );
 
@@ -26,8 +33,8 @@ const Login = () => {
     isPending: isLoading,
     isSuccess,
     mutateAsync,
-    // isError,
-    // error,
+    isError,
+    error,
   } = useMutation<AuthResponse, Error, { email: string; password: string }>({
     mutationKey: ["login"],
     mutationFn: loginAPI,
@@ -35,39 +42,37 @@ const Login = () => {
 
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    username: "",
-    password: "",
-  });
   const [showPassword, setShowPassword] = useState(false);
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    await mutateAsync({
-      email: formData.username,
-      password: formData.password,
-    });
-  };
+  const formik = useFormik({
+    initialValues: {
+      email: "",
+      password: "",
+    },
+    validationSchema: loginSchema,
+    validateOnChange: true,
+    validateOnBlur: true,
+    onSubmit: async (values) => {
+      await mutateAsync({
+        email: values.email,
+        password: values.password,
+      });
+    },
+  });
 
   useEffect(() => {
-    if (!isLoading && isSuccess && responseData.data.accessToken) {
+    if (!isLoading && isSuccess && responseData?.data?.accessToken) {
       dispatch(login(responseData.data.user));
+      toast.success(responseData.message);
       navigate("/posts");
+    } else if (isError && error) {
+      toast.error(error.message);
     }
-  }, [isSuccess, isLoading, responseData, navigate, dispatch]);
+  }, [isSuccess, isLoading, responseData, navigate, dispatch, isError, error]);
 
   return (
     <div className="login-container">
@@ -77,32 +82,38 @@ const Login = () => {
           <p>Sign in to continue</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="login-form">
+        <form onSubmit={formik.handleSubmit} className="login-form">
           <div className="form-group">
             <input
               type="text"
-              id="username"
-              name="username"
-              value={formData.username}
-              onChange={handleInputChange}
-              placeholder="Enter your username"
-              required
+              id="email"
+              name="email"
+              value={formik.values.email}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              placeholder="Enter your email"
               className="form-input"
             />
+            {formik.errors.email && formik.touched.email && (
+              <span className="error-message">{formik.errors.email}</span>
+            )}
           </div>
 
-          <div className="form-group" style={{ position: "relative" }}>
+          <div className="form-group position-relative">
             <input
               type={showPassword ? "text" : "password"}
               id="password"
               name="password"
-              value={formData.password}
-              onChange={handleInputChange}
+              value={formik.values.password}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
               placeholder="Enter your password"
-              required
               className="form-input"
               style={{ paddingRight: "40px" }}
             />
+            {formik.errors.password && formik.touched.password && (
+              <span className="error-message">{formik.errors.password}</span>
+            )}
             <button
               type="button"
               className="password-toggle"
@@ -122,7 +133,7 @@ const Login = () => {
           <button
             type="submit"
             className={`submit-button ${isLoading ? "loading" : ""}`}
-            disabled={isLoading}
+            disabled={isLoading || !formik.isValid}
           >
             {isLoading ? (
               <>

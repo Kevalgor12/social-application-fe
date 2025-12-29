@@ -1,11 +1,16 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "react-toastify";
+
+import type { AuthResponse } from "../../interfaces/auth";
+
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { logout, type AuthResponse } from "../../store/authSlice";
+import { logout } from "../../store/authSlice";
+
+import { signout as signoutAPI } from "../../api/auth";
 
 import "./header.scss";
-import { signout as signoutAPI } from "../../api/auth";
-import { useMutation } from "@tanstack/react-query";
 
 const Header = () => {
   const {
@@ -13,8 +18,7 @@ const Header = () => {
     isPending: isLoading,
     isSuccess,
     mutateAsync,
-    // isError,
-    // error,
+    error,
   } = useMutation<AuthResponse, Error>({
     mutationKey: ["signout"],
     mutationFn: signoutAPI,
@@ -62,9 +66,12 @@ const Header = () => {
 
   useEffect(() => {
     if (!isLoading && isSuccess && responseData.success) {
+      toast.success(responseData.message);
       navigate("/");
+    } else if (!isLoading && !isSuccess && error) {
+      toast.error(error.message);
     }
-  }, [isSuccess, isLoading, responseData, navigate]);
+  }, [isSuccess, isLoading, responseData, navigate, error]);
 
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
@@ -73,12 +80,10 @@ const Header = () => {
   return (
     <header className="header">
       <div className="header-container">
-        {/* Logo */}
         <div className="logo">
           <span>Social App</span>
         </div>
 
-        {/* Navigation */}
         <nav className="nav">
           <Link to="/" className="nav-link">
             Home
@@ -94,7 +99,6 @@ const Header = () => {
           </Link>
         </nav>
 
-        {/* Auth Section */}
         <div className="auth-section">
           {isLoggedIn ? (
             <div className="profile-dropdown" ref={dropdownRef}>
@@ -103,11 +107,6 @@ const Header = () => {
                 onClick={toggleDropdown}
                 aria-expanded={isDropdownOpen}
               >
-                {/* <img
-                  src={"https://via.placeholder.com/150"}
-                  alt={user?.firstName}
-                  className="profile-avatar"
-                /> */}
                 <span className="profile-name">
                   {getInitials(user?.firstName, user?.lastName)}
                 </span>
@@ -128,11 +127,6 @@ const Header = () => {
                     <span className="profile-name">
                       {getInitials(user?.firstName, user?.lastName)}
                     </span>
-                    {/* <img
-                      src={"https://via.placeholder.com/150"}
-                      alt={user?.firstName}
-                      className="dropdown-avatar"
-                    /> */}
                     <div className="dropdown-user-info">
                       <span className="dropdown-name">
                         {user?.firstName} {user?.lastName}

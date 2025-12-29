@@ -1,9 +1,13 @@
+import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { toast } from "react-toastify";
+
+import type { PostListResponse } from "../../../interfaces/post";
+
 import Header from "../../../components/Header";
 import PostsFeed from "../../../components/PostFeed";
 import Footer from "../../../components/Footer";
-import { useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
-import { type PostListResponse } from "../../../api/posts";
+
 import { getUsersPosts as getUsersPostsAPI } from "../../../api/users";
 
 const UserPosts = () => {
@@ -13,6 +17,7 @@ const UserPosts = () => {
     data: responseData,
     isPending: isLoading,
     isSuccess,
+    error,
   } = useQuery<PostListResponse, Error>({
     queryKey: ["getUserPosts", currentPage, 10, searchTerm],
     queryFn: () => getUsersPostsAPI(),
@@ -44,9 +49,9 @@ const UserPosts = () => {
 
   useEffect(() => {
     if (!isLoading && !isSuccess) {
-      console.log("error");
+      toast.error(error?.message);
     }
-  }, [isLoading, isSuccess]);
+  }, [error?.message, isLoading, isSuccess]);
 
   if (isLoading) return <div>Loading...</div>;
 

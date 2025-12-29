@@ -9,14 +9,29 @@ import Posts from "./pages/posts/Posts";
 import Post from "./pages/posts/Post";
 import PostAdd from "./pages/posts/PostAdd";
 import PostEdit from "./pages/posts/PostEdit";
+import PublicRoute from "./components/PublicRoute";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+        <Route
+          path="/login"
+          element={
+            <PublicRoute>
+              <Login />
+            </PublicRoute>
+          }
+        />
+        <Route
+          path="/register"
+          element={
+            <PublicRoute>
+              <Register />
+            </PublicRoute>
+          }
+        />
         <Route
           path="/me/profile"
           element={
@@ -25,14 +40,7 @@ function App() {
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/posts"
-          element={
-            // <ProtectedRoute>
-            <Posts />
-            // </ProtectedRoute>
-          }
-        />
+        <Route path="/posts" element={<Posts />} />
         <Route
           path="/posts/add"
           element={
@@ -41,14 +49,7 @@ function App() {
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/posts/:id"
-          element={
-            // <ProtectedRoute>
-            <Post />
-            // </ProtectedRoute>
-          }
-        />{" "}
+        <Route path="/posts/:id" element={<Post />} />{" "}
         <Route
           path="/posts/:id/edit"
           element={

@@ -1,20 +1,5 @@
-import type { PostListResponse } from "./posts";
-
-export interface UserProfile {
-  id: string;
-  firstName: string;
-  lastName: string;
-  countryCode: string | null;
-  mobile: string | null;
-  email: string;
-  address: string | null;
-}
-
-export interface ProfileResponse {
-  success: boolean;
-  message: string;
-  data: UserProfile;
-}
+import type { PostListResponse } from "../interfaces/post";
+import type { ProfileResponse } from "../interfaces/user";
 
 export async function getUser(): Promise<ProfileResponse> {
   const res = await fetch(

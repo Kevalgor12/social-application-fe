@@ -2,8 +2,10 @@
 
 .post-detail-container {
   max-width: 1200px;
-  margin: 0 auto;
+  margin: 0 0 20px auto;
   padding: 40px 20px;
+  display: flex;
+  flex-direction: column;
 
   @include bp(md-max) {
     padding: 32px 16px;
@@ -12,6 +14,18 @@
   @include bp(xs-max) {
     padding: 24px 16px;
   }
+}
+
+.add-post {
+  max-width: 100px;
+  margin: 0 0 20px auto;
+  padding: 14px;
+  background-color: var(--lady-blue);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  float: right;
 }
 
 .main-post {
@@ -46,6 +60,15 @@
   @include bp(xs-max) {
     height: 200px;
   }
+}
+
+.post-actions-overlay {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: flex;
+  gap: 12px;
+  z-index: 10;
 }
 
 .post-main-image {
@@ -235,7 +258,6 @@
   }
 }
 
-// Button styles using your color system
 .btn {
   padding: 10px 20px;
   border: none;

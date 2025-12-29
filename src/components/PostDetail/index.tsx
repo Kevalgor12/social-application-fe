@@ -1,15 +1,20 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "react-toastify";
+
+import type { PostMeta, PostResponse } from "../../interfaces/post";
+
+import { PostReaction } from "../../constants/enum";
+
+import { useAppSelector } from "../../store/hooks";
+
+import {
+  deletePost as deletePostAPI,
+  managePostReactions as managePostReactionsAPI,
+} from "../../api/posts";
 
 import "./postDetail.scss";
-import {
-  managePostReactions as managePostReactionsAPI,
-  type PostMeta,
-  type PostResponse,
-} from "../../api/posts";
-import { PostReaction } from "../../constants/enum";
-import { useAppSelector } from "../../store/hooks";
-import { useMutation } from "@tanstack/react-query";
 
 const PostDetail = ({ postDetail }: { postDetail?: PostMeta }) => {
   const { isLoggedIn } = useAppSelector((state) => state.auth);
@@ -21,12 +26,11 @@ const PostDetail = ({ postDetail }: { postDetail?: PostMeta }) => {
     postDetail?.likes.totalLikes || 0
   );
   const {
-    data: responseData,
-    isPending: isLoading,
-    isSuccess,
-    mutateAsync,
-    // isError,
-    // error,
+    data: managePostReactionsData,
+    isPending: managePostReactionsIsLoading,
+    isSuccess: managePostReactionsIsSuccess,
+    mutateAsync: managePostReactionsMutateAsync,
+    error: managePostReactionsError,
   } = useMutation<
     PostResponse,
     Error,
@@ -37,6 +41,22 @@ const PostDetail = ({ postDetail }: { postDetail?: PostMeta }) => {
   >({
     mutationKey: ["managePostReactions"],
     mutationFn: managePostReactionsAPI,
+  });
+  const {
+    data: deletePostData,
+    isPending: deletePostIsLoading,
+    isSuccess: deletePostIsSuccess,
+    mutateAsync: deletePostMutateAsync,
+    error: deletePostError,
+  } = useMutation<
+    PostResponse,
+    Error,
+    {
+      postId: string;
+    }
+  >({
+    mutationKey: ["deletePost"],
+    mutationFn: deletePostAPI,
   });
 
   const handleReaction = async () => {
@@ -51,7 +71,7 @@ const PostDetail = ({ postDetail }: { postDetail?: PostMeta }) => {
       setLikeCount((prevCount) =>
         userReaction === PostReaction.LIKE ? prevCount - 1 : prevCount + 1
       );
-      await mutateAsync({
+      await managePostReactionsMutateAsync({
         postId: postDetail?.id.toString() as string,
         post_reaction:
           userReaction === PostReaction.LIKE
@@ -61,13 +81,56 @@ const PostDetail = ({ postDetail }: { postDetail?: PostMeta }) => {
     }
   };
 
-  useEffect(() => {
-    if (!isLoading && isSuccess) {
-      console.log("success", responseData);
-    }
-  }, [isLoading, isSuccess, responseData]);
+  const handleAddPost = () => {
+    navigate("/posts/add");
+  };
 
-  if (isLoading) {
+  const handlePostEdit = () => {
+    navigate(`/posts/${postDetail?.id}/edit`);
+  };
+
+  const handlePostDelete = async () => {
+    await deletePostMutateAsync({
+      postId: postDetail?.id as string,
+    });
+    navigate("/posts");
+  };
+
+  useEffect(() => {
+    if (!managePostReactionsIsLoading && managePostReactionsIsSuccess) {
+      toast.success(managePostReactionsData.message);
+    } else if (
+      !managePostReactionsIsLoading &&
+      !managePostReactionsIsSuccess &&
+      managePostReactionsError
+    ) {
+      toast.error(managePostReactionsError?.message);
+    }
+  }, [
+    managePostReactionsIsLoading,
+    managePostReactionsIsSuccess,
+    managePostReactionsData,
+    managePostReactionsError,
+  ]);
+
+  useEffect(() => {
+    if (!deletePostIsLoading && deletePostIsSuccess) {
+      toast.success(deletePostData.message);
+    } else if (
+      !deletePostIsLoading &&
+      !deletePostIsSuccess &&
+      deletePostError
+    ) {
+      toast.error(deletePostError?.message);
+    }
+  }, [
+    deletePostIsLoading,
+    deletePostIsSuccess,
+    deletePostData,
+    deletePostError,
+  ]);
+
+  if (managePostReactionsIsLoading || deletePostIsLoading) {
     return (
       <div className="post-detail-container">
         <div className="loading-state">
@@ -94,6 +157,9 @@ const PostDetail = ({ postDetail }: { postDetail?: PostMeta }) => {
 
   return (
     <div className="post-detail-container">
+      <button className="add-post" onClick={handleAddPost}>
+        + Add post
+      </button>
       <article className="main-post">
         <div className="post-header">
           <div className="post-image-wrapper">
@@ -102,6 +168,73 @@ const PostDetail = ({ postDetail }: { postDetail?: PostMeta }) => {
               alt={postDetail.title}
               className="post-main-image"
             />
+            <div className="post-actions-overlay">
+              <button
+                className="action-btn edit-btn"
+                aria-label="Edit post"
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor =
+                    "rgba(255, 255, 255, 1)";
+                  e.currentTarget.style.transform = "scale(1.1)";
+                  e.currentTarget.style.boxShadow =
+                    "0 4px 12px rgba(0, 0, 0, 0.15)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor =
+                    "rgba(255, 255, 255, 0.95)";
+                  e.currentTarget.style.transform = "scale(1)";
+                  e.currentTarget.style.boxShadow =
+                    "0 2px 8px rgba(0, 0, 0, 0.1)";
+                }}
+                onClick={handlePostEdit}
+              >
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                </svg>
+              </button>
+
+              <button
+                className="action-btn delete-btn"
+                aria-label="Delete post"
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor =
+                    "rgba(255, 255, 255, 1)";
+                  e.currentTarget.style.transform = "scale(1.1)";
+                  e.currentTarget.style.boxShadow =
+                    "0 4px 12px rgba(0, 0, 0, 0.15)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor =
+                    "rgba(255, 255, 255, 0.95)";
+                  e.currentTarget.style.transform = "scale(1)";
+                  e.currentTarget.style.boxShadow =
+                    "0 2px 8px rgba(0, 0, 0, 0.1)";
+                }}
+                onClick={handlePostDelete}
+              >
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <path d="M3 6h18" />
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                  <path d="M10 11v6" />
+                  <path d="M14 11v6" />
+                </svg>
+              </button>
+            </div>
           </div>
           <div className="post-header-content">
             <h1 className="post-title">{postDetail.title}</h1>

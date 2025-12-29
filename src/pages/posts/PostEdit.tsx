@@ -1,13 +1,15 @@
+import { useEffect } from "react";
+import { useParams } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { toast } from "react-toastify";
+
+import type { SinglePostResponse } from "../../interfaces/post";
+
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import PostForm from "../../components/PostForm";
-import { useQuery } from "@tanstack/react-query";
-import { useEffect } from "react";
-import {
-  getPost as getPostAPI,
-  type SinglePostResponse,
-} from "../../api/posts";
-import { useParams } from "react-router-dom";
+
+import { getPost as getPostAPI } from "../../api/posts";
 
 const PostEdit = () => {
   const { id: postId } = useParams<{ id: string }>();
@@ -15,6 +17,7 @@ const PostEdit = () => {
     data: responseData,
     isPending: isLoading,
     isSuccess,
+    error,
   } = useQuery<SinglePostResponse, Error>({
     queryKey: ["getUserProfile", postId],
     queryFn: () => getPostAPI(postId as string),
@@ -23,9 +26,9 @@ const PostEdit = () => {
 
   useEffect(() => {
     if (!isLoading && !isSuccess) {
-      console.log("error");
+      toast.error(error?.message);
     }
-  }, [isLoading, isSuccess]);
+  }, [error?.message, isLoading, isSuccess]);
 
   if (isLoading) return <div>Loading...</div>;
 

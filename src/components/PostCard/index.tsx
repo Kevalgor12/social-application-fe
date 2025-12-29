@@ -1,15 +1,20 @@
-import "./postCard.scss";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "react-toastify";
+
+import type { PostMeta, PostResponse } from "../../interfaces/post";
+
+import { PostReaction } from "../../constants/enum";
+
+import { useAppSelector } from "../../store/hooks";
+
 import {
   deletePost as deletePostAPI,
   managePostReactions as managePostReactionsAPI,
-  type PostMeta,
-  type PostResponse,
 } from "../../api/posts";
-import { useMutation } from "@tanstack/react-query";
-import { PostReaction } from "../../constants/enum";
-import { useEffect, useState } from "react";
-import { useAppSelector } from "../../store/hooks";
-import { useNavigate } from "react-router-dom";
+
+import "./postCard.scss";
 
 interface PostCardProps {
   post: PostMeta;
@@ -29,8 +34,7 @@ const PostCard = ({ post, userCanEditAndDelete = false }: PostCardProps) => {
     isPending: managePostReactionsIsLoading,
     isSuccess: managePostReactionsIsSuccess,
     mutateAsync: managePostReactionsMutateAsync,
-    // isError,
-    // error,
+    error: managePostReactionsError,
   } = useMutation<
     PostResponse,
     Error,
@@ -47,8 +51,7 @@ const PostCard = ({ post, userCanEditAndDelete = false }: PostCardProps) => {
     isPending: deletePostIsLoading,
     isSuccess: deletePostIsSuccess,
     mutateAsync: deletePostMutateAsync,
-    // isError,
-    // error,
+    error: deletePostError,
   } = useMutation<
     PostResponse,
     Error,
@@ -99,19 +102,37 @@ const PostCard = ({ post, userCanEditAndDelete = false }: PostCardProps) => {
 
   useEffect(() => {
     if (!managePostReactionsIsLoading && managePostReactionsIsSuccess) {
-      console.log("success", managePostReactionsData);
+      toast.success(managePostReactionsData.message);
+    } else if (
+      !managePostReactionsIsLoading &&
+      !managePostReactionsIsSuccess &&
+      managePostReactionsError
+    ) {
+      toast.error(managePostReactionsError?.message);
     }
   }, [
     managePostReactionsIsLoading,
     managePostReactionsIsSuccess,
     managePostReactionsData,
+    managePostReactionsError,
   ]);
 
   useEffect(() => {
     if (!deletePostIsLoading && deletePostIsSuccess) {
-      console.log("Post deleted successfully", deletePostData);
+      toast.success(deletePostData.message);
+    } else if (
+      !deletePostIsLoading &&
+      !deletePostIsSuccess &&
+      deletePostError
+    ) {
+      toast.error(deletePostError?.message);
     }
-  }, [deletePostIsLoading, deletePostIsSuccess, deletePostData]);
+  }, [
+    deletePostIsLoading,
+    deletePostIsSuccess,
+    deletePostData,
+    deletePostError,
+  ]);
 
   return (
     <article className="post-card">
@@ -128,7 +149,6 @@ const PostCard = ({ post, userCanEditAndDelete = false }: PostCardProps) => {
               <button
                 className="action-btn edit-btn"
                 aria-label="Edit post"
-                style={{}}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.backgroundColor =
                     "rgba(255, 255, 255, 1)";
@@ -157,7 +177,6 @@ const PostCard = ({ post, userCanEditAndDelete = false }: PostCardProps) => {
               <button
                 className="action-btn delete-btn"
                 aria-label="Delete post"
-                style={{}}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.backgroundColor =
                     "rgba(255, 255, 255, 1)";
