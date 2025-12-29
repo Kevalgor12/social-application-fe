@@ -18,7 +18,7 @@ import {
 
 const Post = () => {
   const { id: postId } = useParams<{ id: string }>();
-  const { isLoggedIn } = useAppSelector((state) => state.auth);
+  const { isLoggedIn, user } = useAppSelector((state) => state.auth);
   const {
     data: responseData,
     isPending: isLoading,
@@ -46,7 +46,12 @@ const Post = () => {
       <Header />
 
       <main className="main-content">
-        <PostDetail postDetail={responseData?.data} />
+        <PostDetail
+          postDetail={responseData?.data}
+          userCanEditAndDelete={
+            isLoggedIn && user?.id === responseData?.data.author.id
+          }
+        />
       </main>
 
       <Footer />
