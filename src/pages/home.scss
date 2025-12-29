@@ -1,0 +1,111 @@
+@use "../styles/break-points.scss" as *;
+
+@mixin transition($property: all) {
+  transition: $property 0.2s ease-in-out;
+}
+
+.home-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  height: 100vh;
+}
+
+.home-card {
+  background: var(--white);
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  padding: 40px;
+  width: 100%;
+  max-width: 420px;
+  animation: slideIn 0.3s ease-out;
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+.home-header {
+  text-align: center;
+  margin-bottom: 32px;
+
+  h1 {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--cosmos);
+    margin-bottom: 8px;
+  }
+
+  p {
+    color: var(--darlington);
+    font-size: 14px;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.divider {
+  position: relative;
+  text-align: center;
+  margin: 24px 0;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: var(--sparkling-silver);
+  }
+
+  span {
+    background: var(--white);
+    padding: 0 16px;
+    position: relative;
+    color: var(--darlington);
+    font-size: 14px;
+  }
+}
+
+.signup-signin-link {
+  text-align: center;
+  font-size: 14px;
+  color: var(--darlington);
+
+  a {
+    color: var(--lady-blue);
+    text-decoration: none;
+    font-weight: 500;
+    @include transition(color);
+
+    &:hover {
+      color: var(--happy-blue);
+      text-decoration: underline;
+    }
+  }
+}
+
+@include bp(lg-max) {
+  .home-card {
+    padding: 32px 24px;
+  }
+
+  .home-header {
+    h1 {
+      font-size: 20px;
+    }
+  }
+}

@@ -1,0 +1,294 @@
+@use "../../styles/break-points.scss" as *;
+
+.post-detail-container {
+  max-width: 1200px;
+  margin: 0 0 20px auto;
+  padding: 40px 20px;
+  display: flex;
+  flex-direction: column;
+
+  @include bp(md-max) {
+    padding: 32px 16px;
+  }
+
+  @include bp(xs-max) {
+    padding: 24px 16px;
+  }
+}
+
+.add-post {
+  max-width: 100px;
+  margin: 0 0 20px auto;
+  padding: 14px;
+  background-color: var(--lady-blue);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  float: right;
+}
+
+.main-post {
+  background: var(--white);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  margin-bottom: 60px;
+
+  @include bp(md-max) {
+    margin-bottom: 40px;
+  }
+}
+
+.post-header {
+  position: relative;
+}
+
+.post-image-wrapper {
+  position: relative;
+  height: 400px;
+  overflow: hidden;
+
+  @include bp(md-max) {
+    height: 300px;
+  }
+
+  @include bp(sm-max) {
+    height: 250px;
+  }
+
+  @include bp(xs-max) {
+    height: 200px;
+  }
+}
+
+.post-actions-overlay {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: flex;
+  gap: 12px;
+  z-index: 10;
+}
+
+.post-main-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.post-header-content {
+  padding: 32px;
+  background: linear-gradient(to bottom, transparent, rgba(var(--white), 0.95));
+
+  @include bp(xs-max) {
+    padding: 24px 16px;
+  }
+}
+
+.post-meta {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  font-size: 16px;
+  color: var(--darlington);
+
+  @include bp(xs-max) {
+    gap: 16px;
+    font-size: 14px;
+  }
+
+  .post-author,
+  .post-date {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  svg {
+    width: 16px;
+    height: 16px;
+    fill: currentColor;
+  }
+}
+
+.post-description {
+  padding: 32px;
+
+  @include bp(xs-max) {
+    padding: 24px 16px;
+  }
+
+  p {
+    font-size: 16px;
+    line-height: 1.8;
+    color: var(--cosmos);
+    margin-bottom: 20px;
+
+    @include bp(xs-max) {
+      font-size: 15px;
+      line-height: 1.7;
+    }
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+.post-actions {
+  padding: 0 32px 32px;
+  border-bottom: 1px solid var(--sparkling-silver);
+
+  @include bp(xs-max) {
+    padding: 0 16px 24px;
+  }
+}
+
+.recent-posts-section {
+  background: var(--white);
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+
+  @include bp(xs-max) {
+    padding: 24px 16px;
+  }
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 32px;
+
+  h2 {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--cosmos);
+    margin-bottom: 8px;
+
+    @include bp(xs-max) {
+      font-size: 24px;
+    }
+  }
+
+  p {
+    font-size: 16px;
+    color: var(--darlington);
+
+    @include bp(xs-max) {
+      font-size: 14px;
+    }
+  }
+}
+
+.recent-posts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 24px;
+  margin-bottom: 32px;
+
+  @include bp(lg-max) {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+  }
+
+  @include bp(md-max) {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  }
+
+  @include bp(sm-max) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.recent-post-item {
+  .post-card {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+
+    &:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+  }
+}
+
+.load-more-container {
+  text-align: center;
+}
+
+.loading-state,
+.error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  padding: 40px 20px;
+  text-align: center;
+
+  .spinner {
+    width: 48px;
+    height: 48px;
+    border: 3px solid var(--sparkling-silver);
+    border-top: 3px solid var(--lady-blue);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 20px;
+  }
+
+  h2 {
+    font-size: 24px;
+    color: var(--cosmos);
+    margin-bottom: 12px;
+  }
+
+  p {
+    color: var(--darlington);
+    margin-bottom: 24px;
+  }
+
+  .btn {
+    margin-top: 16px;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  &.btn-outline {
+    background: transparent;
+    border: 2px solid var(--sparkling-silver);
+    color: var(--darlington);
+
+    &:hover {
+      border-color: var(--lady-blue);
+      color: var(--lady-blue);
+    }
+  }
+
+  &.btn-primary {
+    background: linear-gradient(135deg, var(--lady-blue), var(--happy-blue));
+    color: var(--white);
+
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(var(--lady-blue), 0.4);
+    }
+  }
+}

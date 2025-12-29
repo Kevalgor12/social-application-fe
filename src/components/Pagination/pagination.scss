@@ -1,0 +1,86 @@
+@use "../../styles/break-points.scss" as *;
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 48px;
+  padding: 24px;
+
+  @include bp(xs-max) {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+}
+
+.pagination-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: var(--white);
+  border: 2px solid var(--sparkling-silver);
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--cosmos);
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover:not(:disabled) {
+    border-color: var(--lady-blue);
+    color: var(--lady-blue);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.pagination-numbers {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pagination-number {
+  padding: 10px 14px;
+  background: var(--white);
+  border: 2px solid var(--sparkling-silver);
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--cosmos);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 40px;
+
+  &:hover:not(:disabled) {
+    border-color: var(--happy-blue);
+    color: var(--happy-blue);
+  }
+
+  &.active {
+    background: var(--lady-blue);
+    border-color: var(--lady-blue);
+    color: var(--white);
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.7;
+  }
+}
+
+.pagination-ellipsis {
+  padding: 10px 8px;
+  color: var(--darlington);
+  font-size: 14px;
+}
